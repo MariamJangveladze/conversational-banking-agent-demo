@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Northstar conversational banking agent architecture</title>
+  <desc id="desc">A browser request passes through bounded API controls, optional intent classification, a deterministic policy engine, an approval gate, a synthetic bank adapter and redacted telemetry.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7f4ea"/><stop offset="1" stop-color="#e6ecdf"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-opacity=".12"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0l10 5-10 5z" fill="#577064"/></marker>
+    <style>.t{font:600 20px 'Arial',sans-serif;fill:#14221b}.s{font:14px 'Arial',sans-serif;fill:#66746d}.k{font:700 11px 'Arial',sans-serif;letter-spacing:2px;fill:#1d5b43}.box{fill:#fffef9;stroke:#cfd8cf;stroke-width:1.5}.line{fill:none;stroke:#577064;stroke-width:2;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1200" height="520" rx="28" fill="url(#bg)"/>
+  <text x="55" y="60" class="k">NORTHSTAR · CONTROLLED AGENT WORKFLOW</text>
+  <path d="M215 230H292" class="line"/><path d="M478 230H555" class="line"/><path d="M742 230H820" class="line"/><path d="M1002 230H1070" class="line"/>
+  <g filter="url(#shadow)"><rect x="45" y="145" width="170" height="170" rx="20" class="box"/><circle cx="130" cy="191" r="24" fill="#d9f46a"/><text x="130" y="198" text-anchor="middle" class="t">01</text><text x="70" y="245" class="t">Web demo</text><text x="70" y="271" class="s">Synthetic user</text><text x="70" y="292" class="s">conversation</text></g>
+  <g filter="url(#shadow)"><rect x="292" y="145" width="186" height="170" rx="20" class="box"/><circle cx="385" cy="191" r="24" fill="#d9f46a"/><text x="385" y="198" text-anchor="middle" class="t">02</text><text x="317" y="245" class="t">API boundary</text><text x="317" y="271" class="s">Token · TTL · limits</text><text x="317" y="292" class="s">Per-session lock</text></g>
+  <g filter="url(#shadow)"><rect x="555" y="125" width="187" height="210" rx="20" fill="#1d5b43"/><circle cx="648" cy="176" r="24" fill="#d9f46a"/><text x="648" y="183" text-anchor="middle" class="t">03</text><text x="580" y="231" style="font:600 20px Arial;fill:white">Policy engine</text><text x="580" y="259" style="font:14px Arial;fill:#d5e1da">Code-owned state</text><text x="580" y="281" style="font:14px Arial;fill:#d5e1da">and permissions</text><rect x="580" y="300" width="135" height="22" rx="11" fill="#d9f46a"/><text x="648" y="315" text-anchor="middle" style="font:700 10px Arial;fill:#1d5b43">MODEL CANNOT BYPASS</text></g>
+  <g filter="url(#shadow)"><rect x="820" y="145" width="182" height="170" rx="20" class="box"/><circle cx="911" cy="191" r="24" fill="#d9f46a"/><text x="911" y="198" text-anchor="middle" class="t">04</text><text x="845" y="245" class="t">Human gate</text><text x="845" y="271" class="s">Approve or cancel</text><text x="845" y="292" class="s">the preview</text></g>
+  <g filter="url(#shadow)"><rect x="1070" y="145" width="95" height="170" rx="20" class="box"/><text x="1118" y="198" text-anchor="middle" class="t">05</text><text x="1118" y="246" text-anchor="middle" class="t">Demo</text><text x="1118" y="271" text-anchor="middle" class="s">No real</text><text x="1118" y="292" text-anchor="middle" class="s">writes</text></g>
+  <path d="M648 335V405H930" class="line"/><rect x="760" y="375" width="240" height="82" rx="15" class="box"/><text x="786" y="410" class="t">Redacted telemetry</text><text x="786" y="435" class="s">Latency · outcome · token cost</text>
+  <path d="M648 125V93H410" class="line"/><rect x="232" y="80" width="230" height="55" rx="14" fill="#fffef9" stroke="#cfd8cf"/><text x="347" y="104" text-anchor="middle" class="s">Optional Strands + Bedrock</text><text x="347" y="123" text-anchor="middle" class="s">intent proposal only</text>
+</svg>
+

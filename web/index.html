@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Northstar — Conversational Banking Agent Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <nav>
+      <a class="brand" href="#"><span class="brand-mark">N</span> Northstar</a>
+      <span class="demo-pill"><span></span> Synthetic demo</span>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow">CONVERSATIONAL BANKING · AGENT SAFETY</p>
+        <h1>Useful automation.<br /><em>Human authority.</em></h1>
+        <p class="lead">A portfolio demonstration of an AI banking assistant with deterministic policy controls, observable decisions, and an approval gate before every simulated action.</p>
+        <div class="capabilities">
+          <span>Read-only insights</span><span>Approval workflow</span><span>Cost telemetry</span>
+        </div>
+      </div>
+      <aside class="principle-card">
+        <p>DESIGN PRINCIPLE 01</p>
+        <blockquote>“The model can propose.<br />Only code can authorize.”</blockquote>
+        <small>No real accounts, identity data, credentials, or transactions.</small>
+      </aside>
+    </section>
+
+    <section class="workspace">
+      <div class="chat-panel">
+        <header>
+          <div><span class="agent-avatar">✦</span><div><strong>Banking assistant</strong><small>Deterministic demo mode</small></div></div>
+          <button id="reset" title="Start new session">↻</button>
+        </header>
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <div id="approval" class="approval" hidden></div>
+        <div class="quick-actions">
+          <button data-message="Show my balance">Balance</button>
+          <button data-message="Recent transactions">Transactions</button>
+          <button data-message="Spending summary">Spending</button>
+        </div>
+        <form id="chat-form">
+          <input id="message" maxlength="800" autocomplete="off" placeholder="Ask about your synthetic account…" />
+          <button aria-label="Send">↑</button>
+        </form>
+      </div>
+
+      <aside class="control-panel">
+        <p class="eyebrow">LIVE SYSTEM VIEW</p>
+        <h2>What happens to this turn</h2>
+        <ol class="flow">
+          <li class="active"><b>01</b><div><strong>Request boundary</strong><small>Size, session and turn-budget checks</small></div></li>
+          <li><b>02</b><div><strong>Intent proposal</strong><small>Mock router or optional Bedrock classifier</small></div></li>
+          <li><b>03</b><div><strong>Policy engine</strong><small>Code-owned permissions and limits</small></div></li>
+          <li><b>04</b><div><strong>Human approval</strong><small>Required before simulated write</small></div></li>
+          <li><b>05</b><div><strong>Redacted telemetry</strong><small>Latency and cost metadata only</small></div></li>
+        </ol>
+        <div class="metric-grid">
+          <div><small>MODE</small><strong>Local</strong></div>
+          <div><small>REAL WRITES</small><strong>0</strong></div>
+          <div><small>PII STORED</small><strong>0</strong></div>
+          <div><small>APPROVAL</small><strong>Code</strong></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
+
