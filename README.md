@@ -82,3 +82,6 @@ The current UI uses the deterministic router by default. The bounded Strands ada
 
 See [architecture decisions](docs/DECISIONS.md) and the [security policy](SECURITY.md).
 
+## Usage and copyright
+
+Portfolio review only. No open-source license is granted. See [COPYRIGHT.md](COPYRIGHT.md).

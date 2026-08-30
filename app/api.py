@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import secrets
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
@@ -25,21 +26,32 @@ def build_handler(
     traces = TraceRecorder()
     workflow = workflow or BankingWorkflow(DemoBankService(), traces)
     allowed_origin = os.getenv("ALLOWED_ORIGIN", "http://127.0.0.1:8080")
+    telemetry_token = os.getenv("TELEMETRY_ADMIN_TOKEN", "")
 
     class Handler(BaseHTTPRequestHandler):
         def do_OPTIONS(self) -> None:
+            if not self._origin_allowed():
+                self._respond(HTTPStatus.FORBIDDEN, {"error": "origin_not_allowed"})
+                return
             self._respond(HTTPStatus.NO_CONTENT, {})
 
         def do_GET(self) -> None:
             if self.path == "/health":
                 self._respond(HTTPStatus.OK, {"status": "ok", "mode": "synthetic-demo"})
             elif self.path == "/api/telemetry":
+                supplied = self.headers.get("X-Demo-Admin-Token", "")
+                if not telemetry_token or not secrets.compare_digest(supplied, telemetry_token):
+                    self._respond(HTTPStatus.NOT_FOUND, {"error": "not_found"})
+                    return
                 self._respond(HTTPStatus.OK, {"traces": traces.snapshot()})
             else:
                 self._respond(HTTPStatus.NOT_FOUND, {"error": "not_found"})
 
         def do_POST(self) -> None:
             try:
+                if not self._origin_allowed():
+                    self._respond(HTTPStatus.FORBIDDEN, {"error": "origin_not_allowed"})
+                    return
                 data = self._read_json()
                 if self.path == "/api/chat/start":
                     session = registry.create()
@@ -71,6 +83,9 @@ def build_handler(
                 self._respond(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": "request_failed"})
 
         def _read_json(self) -> dict[str, Any]:
+            content_type = self.headers.get("Content-Type", "").split(";", 1)[0].strip()
+            if content_type != "application/json":
+                raise ValueError("application_json_required")
             try:
                 content_length = int(self.headers.get("Content-Length", "0"))
             except ValueError as exc:
@@ -85,6 +100,10 @@ def build_handler(
                 raise ValueError("json_object_required")
             return payload
 
+        def _origin_allowed(self) -> bool:
+            origin = self.headers.get("Origin")
+            return origin is None or origin == allowed_origin
+
         def _respond(self, status: int, payload: dict[str, Any]) -> None:
             body = json.dumps(payload).encode("utf-8")
             self.send_response(status)
@@ -95,7 +114,7 @@ def build_handler(
                 self.send_header("Access-Control-Allow-Origin", allowed_origin)
                 self.send_header("Vary", "Origin")
             self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type,X-Demo-Session-Token")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type,X-Demo-Session-Token,X-Demo-Admin-Token")
             self.end_headers()
             self.wfile.write(body)
 
