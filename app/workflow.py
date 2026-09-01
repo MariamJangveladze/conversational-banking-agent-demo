@@ -49,9 +49,15 @@ class BankingWorkflow:
                     "data": balance,
                 }
             elif "transaction" in lowered or "activity" in lowered or proposed_intent == "transactions":
-                response = {"reply": "Here are the latest synthetic transactions.", "data": self.bank.transactions()}
+                response = {
+                    "reply": "Here are the latest synthetic transactions.",
+                    "data": self.bank.transactions(),
+                }
             elif "spending" in lowered or "spent" in lowered or proposed_intent == "spending":
-                response = {"reply": "Here is your synthetic spending summary.", "data": self.bank.spending_summary()}
+                response = {
+                    "reply": "Here is your synthetic spending summary.",
+                    "data": self.bank.spending_summary(),
+                }
             else:
                 response = {
                     "reply": "Try asking for balance, transactions, spending, or: transfer $25 to Alex Demo.",

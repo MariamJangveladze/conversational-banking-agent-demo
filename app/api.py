@@ -60,11 +60,14 @@ def build_handler(
                     return
                 if self.path == "/api/chat/start":
                     session = registry.create()
-                    self._respond(HTTPStatus.CREATED, {
-                        "session_id": session.session_id,
-                        "access_token": session.access_token,
-                        "reply": "Welcome to Northstar, a synthetic banking-agent demo. No real account or money is connected.",
-                    })
+                    self._respond(
+                        HTTPStatus.CREATED,
+                        {
+                            "session_id": session.session_id,
+                            "access_token": session.access_token,
+                            "reply": "Welcome to Northstar, a synthetic banking-agent demo. No real account or money is connected.",
+                        },
+                    )
                     return
                 data = self._read_json()
                 if self.path == "/api/chat/message":
@@ -122,7 +125,9 @@ def build_handler(
                 self.send_header("Access-Control-Allow-Origin", allowed_origin)
                 self.send_header("Vary", "Origin")
             self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type,X-Demo-Session-Token,X-Demo-Admin-Token")
+            self.send_header(
+                "Access-Control-Allow-Headers", "Content-Type,X-Demo-Session-Token,X-Demo-Admin-Token"
+            )
             self.end_headers()
             self.wfile.write(body)
 

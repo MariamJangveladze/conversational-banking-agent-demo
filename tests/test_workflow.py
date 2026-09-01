@@ -54,9 +54,7 @@ def test_no_pending_action_cannot_be_approved() -> None:
 
 
 def test_transfer_recipient_stops_before_follow_up_words() -> None:
-    result = workflow().handle(
-        session(), "transfer $10 to Alex Demo please hurry and do it now"
-    )
+    result = workflow().handle(session(), "transfer $10 to Alex Demo please hurry and do it now")
     assert result["approval"]["payload"]["recipient"] == "Alex Demo"
 
 
@@ -74,6 +72,4 @@ def test_optional_classifier_is_wired_into_routing() -> None:
 
 
 def test_bedrock_adapter_accepts_fenced_json() -> None:
-    assert _json_object('Result:\n```json\n{"intent":"balance","confidence":0.9}\n```')[
-        "intent"
-    ] == "balance"
+    assert _json_object('Result:\n```json\n{"intent":"balance","confidence":0.9}\n```')["intent"] == "balance"
