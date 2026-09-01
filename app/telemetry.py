@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from time import perf_counter
-from typing import Any
+from typing import Any, Self
 
 
 @dataclass(frozen=True)
@@ -31,10 +31,9 @@ class TraceRecorder:
 
 
 class Timer:
-    def __enter__(self) -> "Timer":
+    def __enter__(self) -> Self:
         self._started = perf_counter()
         return self
 
     def __exit__(self, *_: object) -> None:
         self.latency_ms = round((perf_counter() - self._started) * 1000)
-

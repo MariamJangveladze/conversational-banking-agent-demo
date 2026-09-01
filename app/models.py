@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class ActionStatus(str, Enum):
@@ -33,4 +33,3 @@ class DemoSession:
     last_seen_at: datetime = field(default_factory=utc_now)
     turn_count: int = 0
     pending_action: PendingAction | None = None
-
