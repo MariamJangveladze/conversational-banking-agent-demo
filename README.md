@@ -12,7 +12,7 @@ Northstar is a portfolio-ready, production-style demonstration of conversational
 |---|---|
 | Agentic workflow | Conversation → intent → deterministic policy → response |
 | Human-in-the-loop | Transfer simulation creates a preview that must be approved or cancelled |
-| AWS Strands / Bedrock | Optional, tool-free intent-classification adapter |
+| AWS Strands / Bedrock | Optional, wired tool-free intent classifier when `DEMO_MODE=bedrock` |
 | Security boundary | Session token, explicit CORS origin, request/turn/session limits, per-session lock |
 | Observability | Redacted latency/model/token/cost trace schema |
 | Portfolio UX | Interactive web demo plus a live system/control view |
@@ -61,7 +61,11 @@ export AWS_REGION=us-east-1
 export BEDROCK_MODEL_ID=amazon.nova-pro-v1:0
 ```
 
-The current UI uses the deterministic router by default. The bounded Strands adapter in `app/strands_adapter.py` is intentionally separate so cloud inference can be evaluated without granting the model tool authority.
+Testing this optional path requires the reviewer's own AWS credentials and
+Bedrock access. The repository contains no API keys or reusable credentials.
+The UI uses the deterministic router by default; setting `DEMO_MODE=bedrock`
+wires the bounded Strands classifier into the same workflow without granting
+the model tool or write authority.
 
 ## Guardrails
 

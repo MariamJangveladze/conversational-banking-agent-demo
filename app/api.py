@@ -24,7 +24,13 @@ def build_handler(
 ) -> type[BaseHTTPRequestHandler]:
     registry = registry or SessionRegistry()
     traces = TraceRecorder()
-    workflow = workflow or BankingWorkflow(DemoBankService(), traces)
+    if workflow is None:
+        classifier = None
+        if os.getenv("DEMO_MODE", "mock") == "bedrock":
+            from app.strands_adapter import classify_with_bedrock
+
+            classifier = classify_with_bedrock
+        workflow = BankingWorkflow(DemoBankService(), traces, intent_classifier=classifier)
     allowed_origin = os.getenv("ALLOWED_ORIGIN", "http://127.0.0.1:8080")
     telemetry_token = os.getenv("TELEMETRY_ADMIN_TOKEN", "")
 
@@ -52,7 +58,6 @@ def build_handler(
                 if not self._origin_allowed():
                     self._respond(HTTPStatus.FORBIDDEN, {"error": "origin_not_allowed"})
                     return
-                data = self._read_json()
                 if self.path == "/api/chat/start":
                     session = registry.create()
                     self._respond(HTTPStatus.CREATED, {
@@ -61,6 +66,7 @@ def build_handler(
                         "reply": "Welcome to Northstar, a synthetic banking-agent demo. No real account or money is connected.",
                     })
                     return
+                data = self._read_json()
                 if self.path == "/api/chat/message":
                     session_id = str(data.get("session_id", ""))
                     token = self.headers.get("X-Demo-Session-Token", "")
@@ -79,7 +85,8 @@ def build_handler(
                 self._respond(HTTPStatus.UNAUTHORIZED, {"error": "invalid_or_expired_session"})
             except RuntimeError:
                 self._respond(HTTPStatus.TOO_MANY_REQUESTS, {"error": "capacity_reached"})
-            except Exception:
+            # Keep transport errors stable; internal details are deliberately not exposed.
+            except Exception:  # noqa: BLE001
                 self._respond(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": "request_failed"})
 
         def _read_json(self) -> dict[str, Any]:
@@ -97,7 +104,7 @@ def build_handler(
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                 raise ValueError("invalid_json") from exc
             if not isinstance(payload, dict):
-                raise ValueError("json_object_required")
+                raise ValueError("json_object_required")  # noqa: TRY004
             return payload
 
         def _origin_allowed(self) -> bool:
@@ -105,9 +112,10 @@ def build_handler(
             return origin is None or origin == allowed_origin
 
         def _respond(self, status: int, payload: dict[str, Any]) -> None:
-            body = json.dumps(payload).encode("utf-8")
+            body = b"" if status == HTTPStatus.NO_CONTENT else json.dumps(payload).encode("utf-8")
             self.send_response(status)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
+            if body:
+                self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
             origin = self.headers.get("Origin")
             if origin == allowed_origin:

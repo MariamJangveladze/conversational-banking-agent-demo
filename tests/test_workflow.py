@@ -1,7 +1,13 @@
 from app.demo_bank import DemoBankService
 from app.models import ActionStatus, DemoSession
+from app.strands_adapter import _json_object
 from app.telemetry import TraceRecorder
 from app.workflow import BankingWorkflow
+
+
+class Proposal:
+    def __init__(self, intent: str) -> None:
+        self.intent = intent
 
 
 def session() -> DemoSession:
@@ -46,3 +52,28 @@ def test_no_pending_action_cannot_be_approved() -> None:
     result = workflow().handle(session(), "confirm")
     assert result == {"reply": "There is no pending action to approve."}
 
+
+def test_transfer_recipient_stops_before_follow_up_words() -> None:
+    result = workflow().handle(
+        session(), "transfer $10 to Alex Demo please hurry and do it now"
+    )
+    assert result["approval"]["payload"]["recipient"] == "Alex Demo"
+
+
+def test_transfer_takes_precedence_over_balance_in_multi_intent_message() -> None:
+    result = workflow().handle(session(), "Transfer $25 to Alex Demo and show my balance")
+    assert "approval" in result
+
+
+def test_optional_classifier_is_wired_into_routing() -> None:
+    engine = BankingWorkflow(
+        DemoBankService(), TraceRecorder(), intent_classifier=lambda _: Proposal("balance")
+    )
+    result = engine.handle(session(), "Could you check that for me?")
+    assert result["data"]["account_id"] == "demo-checking-001"
+
+
+def test_bedrock_adapter_accepts_fenced_json() -> None:
+    assert _json_object('Result:\n```json\n{"intent":"balance","confidence":0.9}\n```')[
+        "intent"
+    ] == "balance"

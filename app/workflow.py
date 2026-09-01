@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import re
 import secrets
+from collections.abc import Callable
 
 from app.demo_bank import DemoBankService
 from app.models import ActionStatus, DemoSession, PendingAction
 from app.telemetry import Timer, Trace, TraceRecorder
 
-
 TRANSFER_RE = re.compile(
-    r"(?:send|transfer)\s+\$?(?P<amount>\d+(?:\.\d{1,2})?)\s+(?:to\s+)?(?P<recipient>[a-z][a-z .'-]{1,40})",
+    r"(?:send|transfer)\s+\$?(?P<amount>\d+(?:\.\d{1,2})?)\s+(?:to\s+)?"
+    r"(?P<recipient>[a-z][a-z .'-]{1,40}?)"
+    r"(?=\s+(?:please|and|then|show|hurry|do|now|right)\b|[,.!?]|$)",
     re.IGNORECASE,
 )
 
@@ -17,37 +19,47 @@ TRANSFER_RE = re.compile(
 class BankingWorkflow:
     """Deterministic policy boundary around all demo capabilities."""
 
-    def __init__(self, bank: DemoBankService, traces: TraceRecorder) -> None:
+    def __init__(
+        self,
+        bank: DemoBankService,
+        traces: TraceRecorder,
+        intent_classifier: Callable[[str], object] | None = None,
+    ) -> None:
         self.bank = bank
         self.traces = traces
+        self.intent_classifier = intent_classifier
 
     def handle(self, session: DemoSession, message: str) -> dict[str, object]:
         normalized = message.strip()
         lowered = normalized.lower()
+        proposed_intent = None
+        if self.intent_classifier is not None:
+            proposed_intent = str(getattr(self.intent_classifier(normalized), "intent", "help"))
         with Timer() as timer:
             if lowered in {"approve", "confirm"}:
                 response = self._approve(session)
             elif lowered in {"cancel", "reject"}:
                 response = self._cancel(session)
-            elif "balance" in lowered:
+            elif match := TRANSFER_RE.search(normalized):
+                response = self._preview_transfer(session, match)
+            elif "balance" in lowered or proposed_intent == "balance":
                 balance = self.bank.balance()
                 response = {
                     "reply": f"Your synthetic available balance is ${balance['available']:,.2f} {balance['currency']}.",
                     "data": balance,
                 }
-            elif "transaction" in lowered or "activity" in lowered:
+            elif "transaction" in lowered or "activity" in lowered or proposed_intent == "transactions":
                 response = {"reply": "Here are the latest synthetic transactions.", "data": self.bank.transactions()}
-            elif "spending" in lowered or "spent" in lowered:
+            elif "spending" in lowered or "spent" in lowered or proposed_intent == "spending":
                 response = {"reply": "Here is your synthetic spending summary.", "data": self.bank.spending_summary()}
-            elif match := TRANSFER_RE.search(normalized):
-                response = self._preview_transfer(session, match)
             else:
                 response = {
                     "reply": "Try asking for balance, transactions, spending, or: transfer $25 to Alex Demo.",
                     "suggestions": ["Show my balance", "Recent transactions", "Spending summary"],
                 }
 
-        self.traces.record(Trace(operation="chat_turn", latency_ms=timer.latency_ms, model="deterministic-router"))
+        model = "bedrock-intent-classifier" if self.intent_classifier else "deterministic-router"
+        self.traces.record(Trace(operation="chat_turn", latency_ms=timer.latency_ms, model=model))
         return response
 
     def _preview_transfer(self, session: DemoSession, match: re.Match[str]) -> dict[str, object]:
@@ -95,4 +107,3 @@ class BankingWorkflow:
             "status": action.status.value,
             "payload": action.payload,
         }
-
